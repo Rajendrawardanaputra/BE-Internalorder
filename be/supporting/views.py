@@ -2,7 +2,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.response import Response
 from rest_framework import status
 from .models import SupportingDoc, ActivityLog, User
-from .serializers import SupportingDocSerializer, DocumentUploadSerializer, SupportingListSerializer
+from .serializers import SupportingDocSerializer
 import boto3
 from datetime import datetime
 from django.conf import settings
@@ -16,31 +16,46 @@ import io
 import os
 
 class SupportingDocListView(ListCreateAPIView):
-    #authentication_classes = [CustomJWTAuthentication]
+    authentication_classes = [CustomJWTAuthentication]
     serializer_class = SupportingDocSerializer
+    queryset = SupportingDoc.objects.all()
 
-    def get_serializer_class(self):
-        if self.request.method == 'POST' and isinstance(self.request.data, list):
-            return SupportingListSerializer
-        return SupportingDocSerializer
-
-    
     def get_queryset(self):
-        id_charter = self.request.query_params.get('id_charter')
+        id_charter = self.request.query_params.get('id_charter', None)
+        queryset = super().get_queryset()
         if id_charter:
-            return SupportingDoc.objects.filter(id_charter=id_charter)
-        return SupportingDoc.objects.all()
-    
+            queryset = queryset.filter(id_charter=id_charter)
+        return queryset
+
+    def validate_document(self, file_document):
+        # Implement your document validation logic here
+        valid_file_types = ['application/pdf']
+        if file_document.content_type not in valid_file_types:
+            raise serializers.ValidationError("File type is not supported. Please upload a PDF file.")
+
     def perform_create(self, serializer):
-        supporting_list = serializer.save()
+        validated_data = serializer.validated_data
+        file_document = validated_data.get('document')
+        
+        if file_document:
+            self.validate_document(file_document) 
 
-        for supporting in supporting_list:
-            user_id = supporting.id_user.id_user
-            self.log_activity(user_id, 'created', supporting)
+            current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
+            file_extension = ".pdf"
+            file_name = f"{current_datetime}{file_extension}"
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            s3 = boto3.resource('s3', endpoint_url=settings.AWS_S3_ENDPOINT_URL,
+                                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
 
+            file_document_name = f"document/{file_name}"
+            file_document_url = f"/internalorder/{file_document_name}"
 
+            # Upload file to S3 bucket
+            s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME).put_object(
+                Key=file_document_name, Body=file_document.read(), ContentType='application/pdf')
+
+            serializer.save(document=file_document_url, status_supportingdoc='done')
 
     def log_activity(self, user_id, action, supporting):
         user_instance = get_object_or_404(User, id_user=user_id)
@@ -57,7 +72,6 @@ class SupportingDocListView(ListCreateAPIView):
             object=json.dumps(object_data),
         )
 
-
 class SupportingDocDetailView(RetrieveUpdateDestroyAPIView):
     authentication_classes = [CustomJWTAuthentication]
     queryset = SupportingDoc.objects.all()
@@ -70,9 +84,9 @@ class SupportingDocDetailView(RetrieveUpdateDestroyAPIView):
 
         if new_file_document is not None and hasattr(new_file_document, 'size'):
             # Validasi tipe file
-            valid_file_types = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/jfif']
+            valid_file_types = ['application/pdf']
             if new_file_document.content_type not in valid_file_types:
-                raise serializers.ValidationError("Tipe file tidak valid. Harap unggah file PDF, JPEG, PNG, JFIF, atau GIF.")
+                raise serializers.ValidationError("Tipe file tidak valid. Harap unggah file PDF")
 
             s3 = boto3.resource('s3', endpoint_url=settings.AWS_S3_ENDPOINT_URL,
                                 aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -131,44 +145,3 @@ class SupportingDocDetailView(RetrieveUpdateDestroyAPIView):
             object=json.dumps(object_data),
         )
 
-
-class DocumentUploadView(ListCreateAPIView):
-    authentication_classes = [CustomJWTAuthentication]
-    serializer_class = DocumentUploadSerializer
-    queryset = SupportingDoc.objects.all()
-
-    def validate_document(self, file_document):
-        try:
-            decoded_file = base64.b64decode(file_document)
-            pdf_header = b'%PDF'
-            if not decoded_file.startswith(pdf_header):
-                raise ValidationError("Hanya file PDF yang diizinkan.")
-        except Exception as e:
-            raise ValidationError("Gagal memproses file base64.")
-
-    def perform_create(self, serializer):
-        validated_data = serializer.validated_data
-        file_document = validated_data.get('document')
-
-        if file_document:
-            self.validate_document(file_document) 
-
-            current_datetime = datetime.now().strftime("%Y%m%d%H%M%S")
-            file_extension = ".pdf"
-            file_name = f"{current_datetime}{file_extension}"
-
-            s3 = boto3.resource('s3', endpoint_url=settings.AWS_S3_ENDPOINT_URL,
-                                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY)
-
-            file_document_name = f"document/{file_name}"
-            file_document_url = f"/internalorder/{file_document_name}"
-
-            # Decode base64 string to bytes
-            decoded_file = base64.b64decode(file_document)
-
-            # Upload file to S3 bucket
-            s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME).put_object(
-                Key=file_document_name, Body=decoded_file, ContentType='application/pdf')
-
-            serializer.save(document=file_document_url, status_supportingdoc='done')
