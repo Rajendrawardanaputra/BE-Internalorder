@@ -12,11 +12,13 @@ from .models import User, ActivityLog
 from be.middleware.token_middleware import CustomJWTAuthentication
 import json
 from django.forms.models import model_to_dict
+from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 
 class DetailTimelineListCreateAPIView(ListCreateAPIView):
     authentication_classes = [CustomJWTAuthentication]
     queryset = DetailTimeline.objects.all()
+    permission_classes = [AllowAny]
 
     def get_serializer_class(self):
         if self.request.method == 'POST' and isinstance(self.request.data, list):
@@ -62,6 +64,21 @@ class DetailTimelineListCreateAPIView(ListCreateAPIView):
             name_table=name_table,
             object=json.dumps(object_data),
         )
+
+    def delete(self, request):
+        id_project = request.query_params.get('id_project', None)
+        if id_project is not None:
+            timelines_to_delete = DetailTimeline.objects.filter(id_project=id_project)
+            timelines_to_delete.delete()  # Hapus semua objek dengan id_project yang sesuai
+            return Response(
+                {"message": f"Timelines with id_project {id_project} have been deleted"},
+                status=status.HTTP_204_NO_CONTENT
+            )
+        else:
+            return Response(
+                {"error": "Parameter 'id_project' is missing"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 class DetailTimelineDetailAPIView(RetrieveUpdateDestroyAPIView):
     authentication_classes = [CustomJWTAuthentication]
