@@ -13,6 +13,13 @@ class DeliverableListCreateAPIView(ListCreateAPIView):
     queryset = Deliverable.objects.all()
     serializer_class = DeliverableSerializer
 
+    def get_queryset(self):
+        id_charter = self.request.query_params.get('id_charter', None)
+        queryset = super().get_queryset()
+        if id_charter:
+            queryset = queryset.filter(id_charter=id_charter)
+        return queryset
+
     def get_serializer_class(self):
         if self.request.method == 'POST' and isinstance(self.request.data, list):
             return DeliverableListSerializer
