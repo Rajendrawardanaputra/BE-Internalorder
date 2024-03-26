@@ -104,7 +104,7 @@ DATABASES = {
         'NAME': 'db',
         'USER': 'postgres',
         'PASSWORD': '0000',
-        'PORT': '5433',
+        'PORT': '5432',
         'HOST': 'localhost',
         'OPTIONS': {
             'options': '-c search_path=internal_order,project_charter',  # Menambahkan skema project_charter
