@@ -19,12 +19,15 @@ from be.middleware.token_middleware import CustomJWTAuthentication
 from jwt import ExpiredSignatureError, InvalidTokenError
 from django.core.serializers.json import DjangoJSONEncoder
 from be.middleware.token_middleware import CustomJWTAuthentication
+from rest_framework.pagination import PageNumberPagination
 
 
 class UserListCreateView(generics.ListCreateAPIView):
     authentication_classes = [CustomJWTAuthentication]
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    pagination_class = PageNumberPagination
+    pagination_class.page_size = 10
 
     
 class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -45,6 +48,10 @@ class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             # Periksa apakah 'profile' ada dalam data yang dikirimkan
             if 'profile' in request.data:
                 new_profile = request.data['profile']
+
+                # Cek apakah file yang diunggah berformat JPG atau JPEG
+                if not new_profile.name.lower().endswith(('.jpg', '.jpeg')):
+                    raise serializers.ValidationError("Format gambar harus JPG atau JPEG.")
 
                 # Jika 'profile' diubah, simpan foto profil baru
                 if new_profile != existing_profile:
@@ -74,7 +81,6 @@ class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
         except Exception as e:
             return Response({'error': str(e)}, status=500)
-
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()    

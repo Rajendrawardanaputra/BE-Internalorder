@@ -6,7 +6,7 @@ from .serializers import StatusSerializer
 from be.middleware.token_middleware import CustomJWTAuthentication
 
 class StatusListCreateView(generics.ListCreateAPIView):
-    authentication_classes = [CustomJWTAuthentication]
+    #authentication_classes = [CustomJWTAuthentication]
     queryset = Status.objects.all()
     serializer_class = StatusSerializer
 

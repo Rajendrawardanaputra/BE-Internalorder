@@ -8,6 +8,10 @@ from rest_framework.views import APIView
 import datetime
 import json
 from django.shortcuts import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10
 
 class TotalProjectsAPIView(ListAPIView):
     authentication_classes = [CustomJWTAuthentication]
@@ -31,9 +35,9 @@ class TotalProjectsAPIView(ListAPIView):
 
 class ProjectCharterListCreateAPIView(ListCreateAPIView):
     authentication_classes = [CustomJWTAuthentication]
-
     queryset = ProjectCharter.objects.all()
     serializer_class = ProjectCharterSerializer
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         queryset = ProjectCharter.objects.all()
@@ -43,6 +47,12 @@ class ProjectCharterListCreateAPIView(ListCreateAPIView):
             queryset = queryset.filter(id_user=id_user)
         
         return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         # Create the serializer with request data

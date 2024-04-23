@@ -12,11 +12,16 @@ from urllib.parse import quote
 import os
 from django.conf import settings
 from rest_framework import serializers
+from rest_framework.pagination import PageNumberPagination
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10
 
 class ProjectInternalListCreateView(ListCreateAPIView):
     authentication_classes = [CustomJWTAuthentication]
     queryset = ProjectInternal.objects.all()
     serializer_class = ProjectInternalSerializer
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         queryset = ProjectInternal.objects.all()
@@ -29,9 +34,9 @@ class ProjectInternalListCreateView(ListCreateAPIView):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset()).order_by('id_project')
-        serializer = self.get_serializer(queryset, many=True)
-        response_data = self.get_response_data(queryset, serializer.data)
-        return Response(response_data, status=status.HTTP_200_OK)
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True)  # Menggunakan halaman yang sudah dipaginate
+        return self.get_paginated_response(serializer.data)  # Mengirimkan serializer.data sebagai respons
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

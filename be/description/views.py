@@ -10,11 +10,17 @@ import boto3
 from datetime import datetime
 from django.conf import settings
 from rest_framework import serializers
+from rest_framework.pagination import PageNumberPagination
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10
 
 class DescriptionListView(ListCreateAPIView):
     authentication_classes = [CustomJWTAuthentication]
     queryset = Description.objects.all()
     serializer_class = DescriptionSerializer
+    pagination_class = CustomPagination
+    
 
     def get_queryset(self):
         queryset = Description.objects.all()
@@ -22,6 +28,12 @@ class DescriptionListView(ListCreateAPIView):
         if id_charter:
             queryset = queryset.filter(id_charter=id_charter)
         return queryset
+    
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
     def perform_create(self, serializer):
         validated_data = serializer.validated_data

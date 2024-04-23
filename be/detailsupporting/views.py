@@ -10,11 +10,24 @@ from rest_framework import serializers
 from be.middleware.token_middleware import CustomJWTAuthentication
 from django.shortcuts import get_object_or_404
 import json
+from rest_framework.pagination import PageNumberPagination
 
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10
 class RoleResponsibilitiesListView(ListCreateAPIView):
     authentication_classes = [CustomJWTAuthentication]
     queryset = RoleResponsibilities.objects.all()
     serializer_class = RoleResponsibilitiesSerializer
+    pagination_class = CustomPagination
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
+    
 
     def perform_create(self, serializer):
         validated_data = serializer.validated_data

@@ -5,11 +5,23 @@ from .models import Responsibility, User, ActivityLog
 from .serializers import ResponsibilitySerializer
 from be.middleware.token_middleware import CustomJWTAuthentication
 import json
+from rest_framework.pagination import PageNumberPagination
+
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10
 
 class ResponsibilityListCreateAPIView(ListCreateAPIView):
     authentication_classes = [CustomJWTAuthentication]
     queryset = Responsibility.objects.all()
     serializer_class = ResponsibilitySerializer
+    pagination_class = CustomPagination
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
     def get_queryset(self):
         id_charter = self.request.query_params.get('id_charter', None)

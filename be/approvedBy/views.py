@@ -7,11 +7,23 @@ import json
 from .models import Approvedby, User, ActivityLog
 from .serializers import ApprovedbySerializer
 from be.middleware.token_middleware import CustomJWTAuthentication
+from rest_framework.pagination import PageNumberPagination
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10
 
 class ApprovedbyListCreateAPIView(ListCreateAPIView):
     authentication_classes = [CustomJWTAuthentication]
     queryset = Approvedby.objects.all()
     serializer_class = ApprovedbySerializer
+    pagination_class = CustomPagination
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
 
     def get_queryset(self):
         # Menambahkan filter berdasarkan id_charter jika ada

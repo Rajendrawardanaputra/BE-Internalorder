@@ -14,11 +14,25 @@ from django.http import Http404
 import base64
 import io
 import os
+from rest_framework.pagination import PageNumberPagination
+
+
+class CustomPagination(PageNumberPagination):
+    page_size = 10
 
 class SupportingDocListView(ListCreateAPIView):
     authentication_classes = [CustomJWTAuthentication]
     serializer_class = SupportingDocSerializer
     queryset = SupportingDoc.objects.all()
+    pagination_class = CustomPagination
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        serializer = self.serializer_class(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
+
 
     def get_queryset(self):
         id_charter = self.request.query_params.get('id_charter', None)
@@ -26,6 +40,18 @@ class SupportingDocListView(ListCreateAPIView):
         if id_charter:
             queryset = queryset.filter(id_charter=id_charter)
         return queryset
+    
+    def delete(self, request, *args, **kwargs):
+        id_charter = self.request.query_params.get('id_charter', None)
+        if id_charter:
+            supporting_docs = SupportingDoc.objects.filter(id_charter=id_charter)
+            if supporting_docs.exists():
+                supporting_docs.delete()
+                return Response({"message": "SupportingDocs berhasil dihapus berdasarkan id_charter."}, status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({"message": "Tidak ada SupportingDocs yang ditemukan berdasarkan id_charter yang diberikan."}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({"message": "Parameter id_charter tidak diberikan."}, status=status.HTTP_400_BAD_REQUEST)
 
     def validate_document(self, file_document):
         # Implement your document validation logic here
