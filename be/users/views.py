@@ -21,6 +21,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from be.middleware.token_middleware import CustomJWTAuthentication
 from rest_framework.pagination import PageNumberPagination
 
+#paginationuser
 
 class UserListCreateView(generics.ListCreateAPIView):
     authentication_classes = [CustomJWTAuthentication]
