@@ -19,15 +19,15 @@ from be.middleware.token_middleware import CustomJWTAuthentication
 from jwt import ExpiredSignatureError, InvalidTokenError
 from django.core.serializers.json import DjangoJSONEncoder
 from be.middleware.token_middleware import CustomJWTAuthentication
-from rest_framework.pagination import PageNumberPagination
+#from rest_framework.pagination import PageNumberPagination
 
 
 class UserListCreateView(generics.ListCreateAPIView):
     authentication_classes = [CustomJWTAuthentication]
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    pagination_class = PageNumberPagination
-    pagination_class.page_size = 10
+    # pagination_class = PageNumberPagination
+    # pagination_class.page_size = 10
 
     
 class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
