@@ -25,7 +25,7 @@ SECRET_KEY = 'projectinternalorder'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'z8v4553q-8000.asse.devtunnels.ms']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'z8v4553q-8000.asse.devtunnels.ms', 'beinternal.jesica.online']
 
 
 APPEND_SLASH = False
@@ -160,7 +160,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # AWS_S3_SECURE_URLS = False
 # AWS_S3_CUSTOM_DOMAIN=None
 
-ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = []
 AWS_S3_ENDPOINT_URL = 'http://127.0.0.1:9006'
 AWS_ACCESS_KEY_ID = 'CF2yrK2BJGimkr2JJ5FO'
 AWS_SECRET_ACCESS_KEY = 'iOCgyIGcbzHfjihl4iSdoi63x1Hao2UitXVgWIHI'
