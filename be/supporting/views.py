@@ -14,23 +14,23 @@ from django.http import Http404
 import base64
 import io
 import os
-from rest_framework.pagination import PageNumberPagination
+# from rest_framework.pagination import PageNumberPagination
 
 
-class CustomPagination(PageNumberPagination):
-    page_size = 10
+# class CustomPagination(PageNumberPagination):
+#     page_size = 10
 
 class SupportingDocListView(ListCreateAPIView):
     authentication_classes = [CustomJWTAuthentication]
     serializer_class = SupportingDocSerializer
     queryset = SupportingDoc.objects.all()
-    pagination_class = CustomPagination
+    # pagination_class = CustomPagination
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        serializer = self.serializer_class(page, many=True)
-        return self.get_paginated_response(serializer.data)
+    # def list(self, request, *args, **kwargs):
+    #     queryset = self.get_queryset()
+    #     page = self.paginate_queryset(queryset)
+    #     serializer = self.serializer_class(page, many=True)
+    #     return self.get_paginated_response(serializer.data)
 
 
 

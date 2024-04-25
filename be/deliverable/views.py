@@ -7,22 +7,22 @@ import json
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.pagination import PageNumberPagination
+#from rest_framework.pagination import PageNumberPagination
 
-class CustomPagination(PageNumberPagination):
-    page_size = 10
+# class CustomPagination(PageNumberPagination):
+#     page_size = 10
 
 class DeliverableListCreateAPIView(ListCreateAPIView):
     authentication_classes = [CustomJWTAuthentication]
     queryset = Deliverable.objects.all()
     serializer_class = DeliverableSerializer
-    pagination_class = CustomPagination
+    # pagination_class = CustomPagination
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        serializer = self.serializer_class(page, many=True)
-        return self.get_paginated_response(serializer.data)
+    # def list(self, request, *args, **kwargs):
+    #     queryset = self.get_queryset()
+    #     page = self.paginate_queryset(queryset)
+    #     serializer = self.serializer_class(page, many=True)
+    #     return self.get_paginated_response(serializer.data)
 
 
     def get_queryset(self):
