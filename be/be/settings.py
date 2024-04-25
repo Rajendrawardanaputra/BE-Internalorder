@@ -160,10 +160,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # AWS_S3_SECURE_URLS = False
 # AWS_S3_CUSTOM_DOMAIN=None
 
-#ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = ['beinternal.jesica.online']
 AWS_S3_ENDPOINT_URL = 'http://127.0.0.1:9006'
-AWS_ACCESS_KEY_ID = 'CF2yrK2BJGimkr2JJ5FO'
-AWS_SECRET_ACCESS_KEY = 'iOCgyIGcbzHfjihl4iSdoi63x1Hao2UitXVgWIHI'
+AWS_ACCESS_KEY_ID = 'qhazUF7qMQyo5ugJuKxJ'
+AWS_SECRET_ACCESS_KEY = 'WDZoRFGu54wBSkODF9BCpfmuNxtmIF4iL9YrjfsM'
 AWS_STORAGE_BUCKET_NAME = 'internalorder'
 
 # Internationalization
@@ -236,8 +236,8 @@ AUTHENTICATION_BACKENDS = [
 CORS_ORIGIN_ALLOW_ALL = False
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "https://internal.jesica.online"
+    "http://localhost:3000","https://internal.jesica.online",
+    "http://localhost:3140"
 ]
 
 CORS_ALLOW_METHODS = [
