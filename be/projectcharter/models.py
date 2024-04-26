@@ -14,8 +14,9 @@ class User(models.Model):
         managed = False
         db_table = 'user'
 
-from django.db import models
-
+class ProjectStatus(models.TextChoices):
+    Draft = 'Draft', 'Draft'
+    Done = 'Done', 'Done'
 
 class ProjectCharter(models.Model):
     project_name = models.CharField(max_length=255, blank=True, null=True)
@@ -29,7 +30,7 @@ class ProjectCharter(models.Model):
     createdAt = models.DateTimeField(auto_now_add=True)
     id_user = models.ForeignKey('User', models.DO_NOTHING, db_column='id_user', blank=True, null=True)
     updateAt = models.DateTimeField(auto_now=True)
-    status_project = models.TextField(blank=True, null=True)  # This field type is a guess.
+    status_project = models.TextField(choices=ProjectStatus.choices, blank=True, null=True)  # This field type is a guess.
 
     class Meta:
         managed = False
