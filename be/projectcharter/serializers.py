@@ -16,29 +16,29 @@ class ProjectCharterSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectCharter
         fields = '__all__'
-        read_only_fields = ['status_project', 'iwo']
+        read_only_fields = ['iwo']
 
-    def validate(self, data):
-        project_name = data.get('project_name', '')
-        project_manager = data.get('project_manager', '')
-        customer = data.get('customer', '')
-        end_customer = data.get('end_customer', '')
-        bu_delivery = data.get('bu_delivery', '')
-        bu_related = data.get('bu_related', '')
-        project_description = data.get('project_description', '')
-        id_user = data.get('id_user')
+    # def validate(self, data):
+    #     project_name = data.get('project_name', '')
+    #     project_manager = data.get('project_manager', '')
+    #     customer = data.get('customer', '')
+    #     end_customer = data.get('end_customer', '')
+    #     bu_delivery = data.get('bu_delivery', '')
+    #     bu_related = data.get('bu_related', '')
+    #     project_description = data.get('project_description', '')
+    #     id_user = data.get('id_user')
 
-        # Tentukan field-field yang diperlukan
-        required_fields = [project_name, project_manager, customer, end_customer, bu_delivery, bu_related, project_description]
+    #     # Tentukan field-field yang diperlukan
+    #     required_fields = [project_name, project_manager, customer, end_customer, bu_delivery, bu_related, project_description]
 
-        if any(field == '' for field in required_fields) or id_user is None:
-            # Jika setidaknya satu field kosong atau id_user kosong, atur status_project ke 'draft'
-            data['status_project'] = 'Draft'
-        else:
-            # Jika semua field terisi, atur status_project ke 'done'
-            data['status_project'] = 'Done'
+    #     if any(field == '' for field in required_fields) or id_user is None:
+    #         # Jika setidaknya satu field kosong atau id_user kosong, atur status_project ke 'draft'
+    #         data['status_project'] = 'Draft'
+    #     else:
+    #         # Jika semua field terisi, atur status_project ke 'done'
+    #         data['status_project'] = 'Done'
 
-        return data
+    #     return data
 
 
     def create(self, validated_data):
