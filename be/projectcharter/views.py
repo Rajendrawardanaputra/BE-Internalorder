@@ -73,10 +73,10 @@ class ProjectCharterListCreateAPIView(ListCreateAPIView):
         validated_data = serializer.validated_data
 
         # Check if at least one column is empty
-        if any(value == "" for value in validated_data.values()):
-            validated_data['status_project'] = 'Draft'
-        else:
-            validated_data['status_project'] = 'Done'
+        # if any(value == "" for value in validated_data.values()):
+        #     validated_data['status_project'] = 'Draft'
+        # else:
+        #     validated_data['status_project'] = 'Done'
 
         # Generate IWO dynamically
         project_code = "SCC"  # Example project code, you can customize this
