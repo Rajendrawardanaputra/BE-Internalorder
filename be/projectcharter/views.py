@@ -181,7 +181,7 @@ class ProjectCharterDetailAPIView(RetrieveUpdateDestroyAPIView):
             'bu_delivery': projectcharter.bu_delivery,
             'bu_related': projectcharter.bu_related,
             'project_description': projectcharter.project_description,
-            # ... (kolom lainnya)
+            
         }
 
         ActivityLog.objects.create(
